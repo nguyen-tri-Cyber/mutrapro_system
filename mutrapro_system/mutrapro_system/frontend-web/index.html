@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <title>MuTraPro - Web</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>MuTraPro</h1>
+
+  <section id="auth">
+    <h2>Đăng nhập</h2>
+    <input id="email" placeholder="Email" />
+    <input id="password" placeholder="Mật khẩu" type="password" />
+    <button onclick="login()">Login</button>
+    <div id="me"></div>
+  </section>
+
+  <section id="new-request" style="display:none">
+    <h2>Tạo yêu cầu</h2>
+    <select id="service">
+      <option value="TRANSCRIPTION">Phiên âm</option>
+      <option value="MIXING">Hòa âm</option>
+      <option value="RECORDING">Thu âm</option>
+    </select>
+    <input id="title" placeholder="Tiêu đề" />
+    <textarea id="detail" placeholder="Chi tiết"></textarea>
+    <select id="priority">
+      <option value="1">Cao</option>
+      <option value="2" selected>Trung bình</option>
+      <option value="3">Thấp</option>
+    </select>
+    <button onclick="createRequest()">Tạo</button>
+  </section>
+
+  <section id="my-requests" style="display:none">
+    <h2>Danh sách yêu cầu</h2>
+    <ul id="reqList"></ul>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>

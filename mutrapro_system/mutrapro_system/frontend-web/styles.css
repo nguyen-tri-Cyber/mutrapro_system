@@ -1,0 +1,5 @@
+body{font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 16px;}
+input, textarea, select { display:block; width:100%; padding:8px; margin:6px 0; }
+button { padding:8px 12px; }
+h1{color:#2a4365}
+section{border:1px solid #eee; padding:12px; border-radius:8px; margin:12px 0;}

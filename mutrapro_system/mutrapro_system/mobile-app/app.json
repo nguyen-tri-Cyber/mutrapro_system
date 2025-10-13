@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "MuTraPro",
+    "slug": "mutrapro",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "sdkVersion": "51.0.0",
+    "platforms": ["ios", "android", "web"]
+  }
+}
