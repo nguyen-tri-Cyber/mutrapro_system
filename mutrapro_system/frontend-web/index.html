@@ -2,7 +2,6 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MuTraPro - Web</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -17,9 +16,9 @@
     <div id="me"></div>
   </section>
 
-  <section id="new-request">
+  <!-- CUSTOMER UI -->
+  <section id="customer-new" style="display:none">
     <h2>Tạo yêu cầu</h2>
-    <label for="service">Loại dịch vụ:</label>
     <select id="service">
       <option value="TRANSCRIPTION">Phiên âm</option>
       <option value="MIXING">Hòa âm</option>
@@ -27,7 +26,6 @@
     </select>
     <input id="title" placeholder="Tiêu đề" />
     <textarea id="detail" placeholder="Chi tiết"></textarea>
-    <label for="priority">Mức độ ưu tiên:</label>
     <select id="priority">
       <option value="1">Cao</option>
       <option value="2" selected>Trung bình</option>
@@ -36,9 +34,26 @@
     <button onclick="createRequest()">Tạo</button>
   </section>
 
-  <section id="my-requests">
-    <h2>Danh sách yêu cầu</h2>
+  <!-- COMMON: list requests (role-aware) -->
+  <section id="req-section" style="display:none">
+    <h2 id="req-heading">Danh sách yêu cầu</h2>
     <ul id="reqList"></ul>
+  </section>
+
+  <!-- EXPERT actions -->
+  <section id="expert-actions" style="display:none">
+    <h2>Thao tác chuyên gia</h2>
+    <div>Chọn trạng thái nhanh: 
+      <button onclick="bulkSet('IN_PROGRESS')">IN_PROGRESS</button>
+      <button onclick="bulkSet('DONE')">DONE</button>
+    </div>
+    <small>(Tick các yêu cầu bên dưới để cập nhật hàng loạt)</small>
+  </section>
+
+  <!-- STUDIO ADMIN -->
+  <section id="studio-rooms" style="display:none">
+    <h2>Phòng thu đang hoạt động</h2>
+    <ul id="roomList"></ul>
   </section>
 
   <script src="app.js"></script>
