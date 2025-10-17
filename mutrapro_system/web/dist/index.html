@@ -1,27 +1,279 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>MuTraPro - Web</title>
-<style>body{font-family:Arial,sans-serif;max-width:900px;margin:0 auto;padding:16px}input,select,textarea,button{margin:6px 0;padding:8px}</style>
-</head><body>
-<h1>MuTraPro (Gateway :4000)</h1>
-<section><h2>Login</h2>
-<input id="email" placeholder="Email"/><input id="password" placeholder="Password" type="password"/>
-<button onclick="login()">Login</button><div id="me"></div></section>
-<section id="order" style="display:none"><h2>Tạo đơn hàng</h2>
-<select id="svc"><option value="transcription">Phiên âm</option><option value="arrangement">Hòa âm</option><option value="recording">Thu âm</option></select>
-<textarea id="desc" placeholder="Mô tả"></textarea><button onclick="createOrder()">Tạo đơn</button></section>
-<section id="orders" style="display:none"><h2>Đơn hàng</h2><ul id="orderList"></ul></section>
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>MuTraPro - Role Dashboards</title>
+  <style>
+    body{font-family:Arial, sans-serif; max-width:1100px; margin:0 auto; padding:16px}
+    input,select,textarea,button{margin:6px 0; padding:8px}
+    .card{border:1px solid #ddd; border-radius:8px; padding:12px; margin:12px 0}
+    .hidden{display:none}
+    .row{display:flex; gap:16px; flex-wrap:wrap}
+    .col{flex:1 1 320px}
+    .tag{display:inline-block; padding:2px 8px; border:1px solid #999; border-radius:12px; font-size:12px; margin-left:8px}
+    #logout{background:#c62828; color:#fff; border:none; border-radius:6px}
+  </style>
+</head>
+<body>
+  <h1>MuTraPro (Gateway :4000)</h1>
+
+  <section id="auth" class="card">
+    <h2>Đăng nhập</h2>
+    <input id="email" placeholder="Email" />
+    <input id="password" placeholder="Password" type="password" />
+    <button id="btnLogin">Login</button>
+  </section>
+
+  <section id="meCard" class="card hidden">
+    <div>
+      <strong id="hello"></strong>
+      <span id="roleTag" class="tag"></span>
+    </div>
+    <button id="logout">Đăng xuất</button>
+  </section>
+
+  <!-- CUSTOMER -->
+  <section id="customerPanel" class="card hidden">
+    <h3>Khách hàng — Tạo yêu cầu</h3>
+    <select id="svc">
+      <option value="transcription">Phiên âm</option>
+      <option value="arrangement">Hòa âm</option>
+      <option value="recording">Thu âm</option>
+    </select>
+    <textarea id="desc" placeholder="Mô tả yêu cầu"></textarea><br/>
+    <button id="btnCreateOrder">Tạo đơn</button>
+
+    <h4>Đơn của tôi</h4>
+    <ul id="myOrders"></ul>
+  </section>
+
+  <!-- COORDINATOR -->
+  <section id="coordinatorPanel" class="card hidden">
+    <h3>Điều phối dịch vụ — Quản lý & phân công</h3>
+    <button id="btnLoadAllOrders">Tải danh sách đơn</button>
+    <ul id="allOrders"></ul>
+
+    <div class="row">
+      <div class="col">
+        <h4>Phân công nhiệm vụ</h4>
+        <input id="assignOrderId" placeholder="order_id (vd 1)" />
+        <select id="assignRole">
+          <option value="transcriber">transcriber (ký âm)</option>
+          <option value="arranger">arranger (phối khí)</option>
+          <option value="artist">artist (thu âm)</option>
+        </select>
+        <input id="assignToUserId" placeholder="assigned_to (user_id chuyên viên)" />
+        <button id="btnAssign">Assign</button>
+      </div>
+      <div class="col">
+        <h4>Đổi trạng thái đơn</h4>
+        <input id="statusOrderId" placeholder="order_id (vd 1)" />
+        <select id="newOrderStatus">
+          <option value="assigned">assigned</option>
+          <option value="in_progress">in_progress</option>
+          <option value="completed">completed</option>
+          <option value="paid">paid</option>
+          <option value="cancelled">cancelled</option>
+        </select>
+        <button id="btnSetOrderStatus">Cập nhật</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPECIALISTS: TRANSCRIBER / ARRANGER / ARTIST -->
+  <section id="specialistPanel" class="card hidden">
+    <h3>Chuyên viên — Nhiệm vụ của tôi</h3>
+    <button id="btnLoadMyTasks">Tải nhiệm vụ</button>
+    <ul id="myTasks"></ul>
+
+    <h4>Đổi trạng thái task</h4>
+    <input id="taskId" placeholder="task_id (vd 1)" />
+    <select id="taskNewStatus">
+      <option value="in_progress">in_progress</option>
+      <option value="done">done</option>
+    </select>
+    <button id="btnSetTaskStatus">Cập nhật Task</button>
+  </section>
+
+  <!-- STUDIO ADMIN -->
+  <section id="studioPanel" class="card hidden">
+    <h3>Quản trị phòng thu</h3>
+    <div class="row">
+      <div class="col">
+        <h4>Phòng thu</h4>
+        <button id="btnStudios">Tải danh sách phòng</button>
+        <ul id="studios"></ul>
+      </div>
+      <div class="col">
+        <h4>Đặt lịch (artist sử dụng)</h4>
+        <input id="bkStudioId" placeholder="studio_id (vd 1)" />
+        <input id="bkOrderId" placeholder="order_id (optional)" />
+        <input id="bkStart" placeholder="YYYY-MM-DD HH:mm:ss" />
+        <input id="bkEnd" placeholder="YYYY-MM-DD HH:mm:ss" />
+        <button id="btnCreateBooking">Tạo Booking (tài khoản artist)</button>
+      </div>
+    </div>
+
+    <h4>Lịch của tôi (nếu bạn là artist)</h4>
+    <button id="btnMyBookings">Tải lịch</button>
+    <ul id="bookings"></ul>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="adminPanel" class="card hidden">
+    <h3>Quản trị hệ thống — Tổng quan</h3>
+    <p>Gợi ý mở rộng: thêm trang quản trị users, reset mật khẩu, báo cáo…</p>
+  </section>
+
+  <!-- Notifications (dùng chung) -->
+  <section id="notiPanel" class="card hidden">
+    <h3>Thông báo của tôi</h3>
+    <button id="btnMyNoti">Tải thông báo</button>
+    <ul id="notis"></ul>
+  </section>
+
 <script>
-const API='http://localhost:4000'; let token=''; let me=null;
-async function login(){
-  const email=document.getElementById('email').value, password=document.getElementById('password').value;
-  const r=await fetch(API+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
-  const data=await r.json(); if(data.token){token=data.token; me=data.user; document.getElementById('me').innerText='Xin chào '+me.name+' ('+me.role+')';
-  document.getElementById('order').style.display=me.role==='customer'?'block':'none'; document.getElementById('orders').style.display='block'; loadOrders();} else alert('Login failed');}
-async function createOrder(){
-  const body={service_type:document.getElementById('svc').value, description:document.getElementById('desc').value, price:0};
-  const r=await fetch(API+'/api/orders/orders',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(body)});
-  const data=await r.json(); alert('Tạo đơn #'+data.id); loadOrders();}
-async function loadOrders(){
-  const r=await fetch(API+'/api/orders/orders',{headers:{'Authorization':'Bearer '+token}});
-  const list=await r.json(); const ul=document.getElementById('orderList'); ul.innerHTML='';
-  list.forEach(o=>{ const li=document.createElement('li'); li.textContent='#'+o.id+' ['+o.service_type+'] - '+o.status; ul.appendChild(li); });}
-</script></body></html>
+const API = 'http://localhost:4000';
+let token = '';
+let me = null;
+
+// ===== Helpers =====
+function $(id){return document.getElementById(id)}
+function show(id, on){ $(id).classList.toggle('hidden', !on); }
+function alertErr(e){ console.error(e); alert('Error: '+e); }
+
+async function req(path, method='GET', body){
+  const r = await fetch(API+path, {
+    method,
+    headers: {'Content-Type': 'application/json', ...(token? {'Authorization':'Bearer '+token} : {})},
+    body: body? JSON.stringify(body): undefined
+  });
+  const data = await r.json().catch(()=>({}));
+  if(!r.ok){ throw (data.error||r.statusText); }
+  return data;
+}
+
+// ===== Auth =====
+$('btnLogin').onclick = async ()=>{
+  try{
+    const data = await req('/api/auth/login', 'POST', { email: $('email').value, password: $('password').value });
+    token = data.token; me = data.user;
+    $('hello').innerText = `Xin chào, ${me.name}`;
+    $('roleTag').innerText = me.role;
+    show('auth', false);
+    show('meCard', true);
+    // Role routing
+    const role = me.role;
+    show('customerPanel', role==='customer');
+    show('coordinatorPanel', role==='coordinator');
+    show('specialistPanel', ['transcriber','arranger','artist'].includes(role));
+    show('studioPanel', role==='studio_admin' || role==='artist'); // studio_admin quản lý phòng; artist xem lịch
+    show('adminPanel', role==='admin');
+    show('notiPanel', true);
+    // Auto load lists
+    if(role==='customer') loadMyOrders();
+    if(['transcriber','arranger','artist'].includes(role)) loadMyTasks();
+  }catch(e){ alertErr(e); }
+};
+
+$('logout').onclick = ()=>{
+  token=''; me=null; location.reload();
+};
+
+// ===== CUSTOMER =====
+async function loadMyOrders(){
+  try{
+    const list = await req('/api/orders/orders','GET');
+    $('myOrders').innerHTML = list.map(o=>`<li>#${o.id} [${o.service_type}] - ${o.status}</li>`).join('');
+  }catch(e){ alertErr(e); }
+}
+$('btnCreateOrder').onclick = async ()=>{
+  try{
+    const body = { service_type: $('svc').value, description: $('desc').value, price: 0 };
+    const data = await req('/api/orders/orders','POST', body);
+    alert('Tạo đơn #'+data.id);
+    loadMyOrders();
+  }catch(e){ alertErr(e); }
+};
+
+// ===== COORDINATOR =====
+$('btnLoadAllOrders').onclick = async ()=>{
+  try{
+    const list = await req('/api/orders/orders','GET');
+    $('allOrders').innerHTML = list.map(o=>`<li>#${o.id} [${o.service_type}] - ${o.status} (customer_id:${o.customer_id})</li>`).join('');
+  }catch(e){ alertErr(e); }
+};
+$('btnAssign').onclick = async ()=>{
+  try{
+    const body = {
+      order_id: Number($('assignOrderId').value),
+      specialist_role: $('assignRole').value,
+      assigned_to: Number($('assignToUserId').value)
+    };
+    const data = await req('/api/tasks/tasks/assign','POST', body);
+    alert('Assigned task #'+data.id);
+  }catch(e){ alertErr(e); }
+};
+$('btnSetOrderStatus').onclick = async ()=>{
+  try{
+    const id = Number($('statusOrderId').value);
+    const status = $('newOrderStatus').value;
+    await req('/api/orders/orders/'+id+'/status','POST', { status });
+    alert('Cập nhật đơn #'+id+' → '+status);
+  }catch(e){ alertErr(e); }
+};
+
+// ===== SPECIALISTS (transcriber/arranger/artist) =====
+async function loadMyTasks(){
+  try{
+    const list = await req('/api/tasks/tasks/my','GET');
+    $('myTasks').innerHTML = list.map(t=>`<li>#${t.id} — order:${t.order_id} — ${t.specialist_role} — ${t.status}</li>`).join('');
+  }catch(e){ alertErr(e); }
+}
+$('btnLoadMyTasks').onclick = loadMyTasks;
+$('btnSetTaskStatus').onclick = async ()=>{
+  try{
+    const id = Number($('taskId').value);
+    const status = $('taskNewStatus').value;
+    await req('/api/tasks/tasks/'+id+'/status','POST', { status });
+    alert('Task #'+id+' → '+status);
+    loadMyTasks();
+  }catch(e){ alertErr(e); }
+};
+
+// ===== STUDIO =====
+$('btnStudios').onclick = async ()=>{
+  try{
+    const list = await req('/api/studios/studios','GET');
+    $('studios').innerHTML = list.map(s=>`<li>#${s.id} ${s.name} — ${s.location} — ${s.status}</li>`).join('');
+  }catch(e){ alertErr(e); }
+};
+$('btnCreateBooking').onclick = async ()=>{
+  try{
+    const body = {
+      studio_id: Number($('bkStudioId').value),
+      order_id: $('bkOrderId').value? Number($('bkOrderId').value): null,
+      start_time: $('bkStart').value,
+      end_time: $('bkEnd').value
+    };
+    const data = await req('/api/studios/bookings','POST', body);
+    alert('Booking #'+data.id);
+  }catch(e){ alertErr(e); }
+};
+$('btnMyBookings').onclick = async ()=>{
+  try{
+    const list = await req('/api/studios/bookings/my','GET');
+    $('bookings').innerHTML = list.map(b=>`<li>#${b.id} studio:${b.studio_id} ${b.start_time}→${b.end_time} [${b.status}]</li>`).join('');
+  }catch(e){ alertErr(e); }
+};
+
+// ===== Notifications =====
+$('btnMyNoti').onclick = async ()=>{
+  try{
+    const list = await req('/api/notifications/my','GET');
+    $('notis').innerHTML = list.map(n=>`<li>#${n.id} ${n.title}: ${n.message}</li>`).join('');
+  }catch(e){ alertErr(e); }
+};
+</script>
+</body>
+</html>
