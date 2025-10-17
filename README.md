@@ -83,14 +83,14 @@ Body (JSON): { "name":"Cus One","email":"c1@mp.com","password":"123456","role":"
 
 
 7 loại tài khoản:
-Role              Vai trò	                         Mô tả ngắn
-customer	        Khách hàng	                     Người gửi yêu cầu dịch vụ
-coordinator	      Điều phối dịch vụ	               Trung gian, phân công chuyên viên, duyệt tiến độ
-transcriber	      Chuyên viên ký âm	               Nhận và xử lý yêu cầu ký âm
-arranger	        Chuyên viên phối khí	           Nhận bản ký âm, thực hiện phối khí
-artist	          Nghệ sĩ thu âm	                 Thực hiện thu âm trong phòng thu
-studio_admin	    Quản trị viên phòng thu	         Quản lý phòng thu, lịch đặt
-admin	            Quản trị hệ thống	               Quản lý toàn bộ tài khoản, phân quyền, dữ liệu hệ thống
+Role ------------------------- Vai trò	----------------------------- Mô tả ngắn
+customer ---------------------	Khách hàng --------------------------	Người gửi yêu cầu dịch vụ
+coordinator ------------------ Điều phối dịch vụ -------------------	Trung gian, phân công chuyên viên, duyệt tiến độ
+transcriber	------------------ Chuyên viên ký âm ------------------- Nhận và xử lý yêu cầu ký âm
+arranger ---------------------	Chuyên viên phối khí ----------------	Nhận bản ký âm, thực hiện phối khí
+artist ----------------------- Nghệ sĩ thu âm	---------------------- Thực hiện thu âm trong phòng thu
+studio_admin ----------------- Quản trị viên phòng thu -------------	Quản lý phòng thu, lịch đặt
+admin ------------------------	Quản trị hệ thống -------------------	Quản lý toàn bộ tài khoản, phân quyền, dữ liệu hệ thống
 
 Đăng nhập:
 POST http://localhost:4000/api/auth/login
