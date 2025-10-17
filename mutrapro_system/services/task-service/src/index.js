@@ -1,0 +1,11 @@
+import express from 'express'; import cors from 'cors'; import morgan from 'morgan'; import dotenv from 'dotenv'; import mysql from 'mysql2/promise';
+import { authRequired } from './middleware.js'; dotenv.config();
+const app=express(); app.use(cors()); app.use(express.json()); app.use(morgan('dev'));
+const pool=await mysql.createPool({host:process.env.DB_HOST,user:process.env.DB_USER,password:process.env.DB_PASSWORD,database:process.env.DB_NAME,port:Number(process.env.DB_PORT||3306)});
+app.get('/',(req,res)=>res.json({ok:true,service:'task'}));
+app.post('/tasks/assign',authRequired,async(req,res,n)=>{try{const {order_id,specialist_role,assigned_to}=req.body;
+  const [r]=await pool.execute('INSERT INTO task(order_id, assigned_to, specialist_role) VALUES(?,?,?)',[order_id,assigned_to||0,specialist_role]);
+  res.json({id:r.insertId});}catch(e){n(e)}});
+app.get('/tasks/my',authRequired,async(req,res,n)=>{try{const [rows]=await pool.execute('SELECT * FROM task WHERE assigned_to=? ORDER BY id DESC',[req.user.uid]); res.json(rows);}catch(e){n(e)}});
+app.post('/tasks/:id/status',authRequired,async(req,res,n)=>{try{await pool.execute('UPDATE task SET status=? WHERE id=?',[req.body.status,req.params.id]); res.json({ok:true});}catch(e){n(e)}});
+app.use((e,req,res,n)=>{console.error(e); res.status(500).json({error:e.message})}); app.listen(process.env.PORT,()=>console.log('task on',process.env.PORT));

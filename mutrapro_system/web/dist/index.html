@@ -1,0 +1,27 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>MuTraPro - Web</title>
+<style>body{font-family:Arial,sans-serif;max-width:900px;margin:0 auto;padding:16px}input,select,textarea,button{margin:6px 0;padding:8px}</style>
+</head><body>
+<h1>MuTraPro (Gateway :4000)</h1>
+<section><h2>Login</h2>
+<input id="email" placeholder="Email"/><input id="password" placeholder="Password" type="password"/>
+<button onclick="login()">Login</button><div id="me"></div></section>
+<section id="order" style="display:none"><h2>Tạo đơn hàng</h2>
+<select id="svc"><option value="transcription">Phiên âm</option><option value="arrangement">Hòa âm</option><option value="recording">Thu âm</option></select>
+<textarea id="desc" placeholder="Mô tả"></textarea><button onclick="createOrder()">Tạo đơn</button></section>
+<section id="orders" style="display:none"><h2>Đơn hàng</h2><ul id="orderList"></ul></section>
+<script>
+const API='http://localhost:4000'; let token=''; let me=null;
+async function login(){
+  const email=document.getElementById('email').value, password=document.getElementById('password').value;
+  const r=await fetch(API+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+  const data=await r.json(); if(data.token){token=data.token; me=data.user; document.getElementById('me').innerText='Xin chào '+me.name+' ('+me.role+')';
+  document.getElementById('order').style.display=me.role==='customer'?'block':'none'; document.getElementById('orders').style.display='block'; loadOrders();} else alert('Login failed');}
+async function createOrder(){
+  const body={service_type:document.getElementById('svc').value, description:document.getElementById('desc').value, price:0};
+  const r=await fetch(API+'/api/orders/orders',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(body)});
+  const data=await r.json(); alert('Tạo đơn #'+data.id); loadOrders();}
+async function loadOrders(){
+  const r=await fetch(API+'/api/orders/orders',{headers:{'Authorization':'Bearer '+token}});
+  const list=await r.json(); const ul=document.getElementById('orderList'); ul.innerHTML='';
+  list.forEach(o=>{ const li=document.createElement('li'); li.textContent='#'+o.id+' ['+o.service_type+'] - '+o.status; ul.appendChild(li); });}
+</script></body></html>

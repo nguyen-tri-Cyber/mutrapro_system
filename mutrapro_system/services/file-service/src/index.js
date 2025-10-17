@@ -1,0 +1,10 @@
+import express from 'express'; import cors from 'cors'; import morgan from 'morgan'; import dotenv from 'dotenv'; import mysql from 'mysql2/promise';
+import { authRequired } from './middleware.js'; dotenv.config();
+const app=express(); app.use(cors()); app.use(express.json()); app.use(morgan('dev'));
+const pool=await mysql.createPool({host:process.env.DB_HOST,user:process.env.DB_USER,password:process.env.DB_PASSWORD,database:process.env.DB_NAME,port:Number(process.env.DB_PORT||3306)});
+app.get('/',(req,res)=>res.json({ok:true,service:'file'}));
+app.post('/files',authRequired,async(req,res,n)=>{try{const {order_id,file_name,file_path,file_type}=req.body;
+  const [r]=await pool.execute('INSERT INTO files(order_id,uploader_id,file_name,file_path,file_type) VALUES(?,?,?,?,?)',[order_id,req.user.uid,file_name,file_path,file_type]);
+  res.json({id:r.insertId});}catch(e){n(e)}});
+app.get('/files',authRequired,async(req,res,n)=>{try{const {order_id}=req.query; const [rows]=await pool.execute('SELECT * FROM files WHERE order_id=?',[order_id]); res.json(rows);}catch(e){n(e)}});
+app.use((e,req,res,n)=>{console.error(e); res.status(500).json({error:e.message})}); app.listen(process.env.PORT,()=>console.log('file on',process.env.PORT));

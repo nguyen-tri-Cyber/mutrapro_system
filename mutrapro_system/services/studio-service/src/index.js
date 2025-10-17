@@ -1,0 +1,11 @@
+import express from 'express'; import cors from 'cors'; import morgan from 'morgan'; import dotenv from 'dotenv'; import mysql from 'mysql2/promise';
+import { authRequired } from './middleware.js'; dotenv.config();
+const app=express(); app.use(cors()); app.use(express.json()); app.use(morgan('dev'));
+const pool=await mysql.createPool({host:process.env.DB_HOST,user:process.env.DB_USER,password:process.env.DB_PASSWORD,database:process.env.DB_NAME,port:Number(process.env.DB_PORT||3306)});
+app.get('/',(req,res)=>res.json({ok:true,service:'studio'}));
+app.get('/studios',authRequired,async(req,res,n)=>{try{const [rows]=await pool.execute('SELECT * FROM studios WHERE status<>"maintenance"'); res.json(rows);}catch(e){n(e)}});
+app.post('/bookings',authRequired,async(req,res,n)=>{try{const {studio_id,order_id,start_time,end_time}=req.body;
+  const [r]=await pool.execute('INSERT INTO booking(studio_id,artist_id,order_id,start_time,end_time) VALUES(?,?,?,?,?)',[studio_id,req.user.uid,order_id||null,start_time,end_time]);
+  res.json({id:r.insertId});}catch(e){n(e)}});
+app.get('/bookings/my',authRequired,async(req,res,n)=>{try{const [rows]=await pool.execute('SELECT * FROM booking WHERE artist_id=? ORDER BY id DESC',[req.user.uid]); res.json(rows);}catch(e){n(e)}});
+app.use((e,req,res,n)=>{console.error(e); res.status(500).json({error:e.message})}); app.listen(process.env.PORT,()=>console.log('studio on',process.env.PORT));
