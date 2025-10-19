@@ -1,5 +1,5 @@
 # mutrapro_system
-Custom Music Transcription and Production System
+Custom Music Transcription and Production System (vẫn đang cập nhật code và cách dùng)
 
 Chúng ta sẽ xây dựng 6 services độc lập, mỗi service đảm nhiệm một chức năng cụ thể dựa trên thiết kế cơ sở dữ liệu của bạn.
 Khởi tạo chung cho mỗi Service
