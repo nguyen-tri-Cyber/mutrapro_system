@@ -22,7 +22,13 @@ Cách thực hiện:
 
 pass mysql: your_strong_password
 
-Chạy web dùng: nmp start ở mục web-app
+Ở mutrapro_system/web-app.(copy cả dấu . trong npx create-react-app .):
+1. Mở termial và chạy lệnh: npx create-react-app .
+Nếu mà đang chạy mà lỗi Either try using a new direction name, or remove the files listed above thì:
+- Copy đem file src cũ ra chỗ khác rồi chạy lệnh, sau đó xóa các file bên trong src mới rồi dán các file bên src cũ qua.
+- Sau đó Cài lại thư viện react-router-dom và axios: npm install react-router-dom axios
+2. Chạy web dùng: nmp start ở mục web-app (lưu ý trước khi chạy web là phải mở Docker + Mysql Workbench, nếu ko mở là web ko chạy đc)
+
 
 Danh sách tài khoản mẫu:
 1. Điều phối viên (Coordinator)
