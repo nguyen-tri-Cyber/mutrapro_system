@@ -11,7 +11,7 @@ Khởi chạy Docker ở mục mutropro_system:
 docker-compose down
 docker-compose up --build
 
-Tạo Cấu trúc Bảng trong Database
+Tạo Cấu trúc Bảng trong Database (các database nằm trong 6 database.docx)
 Cách thực hiện:
 1. Mở một công cụ quản lý cơ sở dữ liệu như MySQL Workbench, DBeaver, hoặc thậm chí là terminal.
 2. Kết nối tới database MySQL đang chạy trong Docker của bạn với thông tin sau:
